@@ -64,7 +64,7 @@ Table of Contents
 
 ```javascript
 <template>
-  <div class="counter">
+  <div id="counter">
     <p>Current count: {{count}}</p>
     <button v-on:click="increment">+</button>
     <button v-on:click="decrement">-</button>
@@ -171,7 +171,7 @@ export default {
 
 状态管理是非常核心的功能，vuex 是尤大大专门为vue打造的状态管理框架，类似于 React 社区里的Redux. Vuex 最好的文档就是官方的文档 <https://vuex.vuejs.org/>，只看这一份文档就足够了，官方的文档写的简洁然而又通俗易懂。
 
-这一节我们将使用 vuex 来改造 Counter 组件，把它的状态放入到 vuex的单根树里，因此Counter变成了一个无状态的组件。
+这一节我们将使用 vuex 来改造 Counter 组件，把它的状态放入到 vuex的单根树里，因此Counter变成了一个无状态的组件。 大部分代码参考了[官方的Counter例子](https://github.com/vuejs/vuex/tree/dev/examples/counter)。
 
 首先拷贝项目，
 
@@ -181,3 +181,135 @@ export default {
 然后安装 vuex,
 
     npm install --save vuex
+
+首先创建一个全局的 store, 新建一个文件 `src/store/index.js`,
+
+
+```javascript
+import Vue from 'vue'
+import Vuex from 'vuex'
+
+Vue.use(Vuex)
+
+// root state object.
+// each Vuex instance is just a single state tree.
+const state = {
+  count: 0
+}
+
+// mutations are operations that actually mutates the state.
+// each mutation handler gets the entire state tree as the
+// first argument, followed by additional payload arguments.
+// mutations must be synchronous and can be recorded by plugins
+// for debugging purposes.
+const mutations = {
+  increment (state) {
+    state.count++
+  },
+  decrement (state) {
+    state.count--
+  }
+}
+
+// actions are functions that causes side effects and can involve
+// asynchronous operations.
+const actions = {
+  increment: ({ commit }) => commit('increment'),
+  decrement: ({ commit }) => commit('decrement'),
+  incrementIfOdd ({ commit, state }) {
+    if ((state.count + 1) % 2 === 0) {
+      commit('increment')
+    }
+  },
+  incrementAsync ({ commit }) {
+    return new Promise((resolve, reject) => {
+      setTimeout(() => {
+        commit('increment')
+        resolve()
+      }, 1000)
+    })
+  }
+}
+
+// getters are functions
+const getters = {
+  evenOrOdd: state => state.count % 2 === 0 ? 'even' : 'odd'
+}
+
+// A Vuex instance is created by combining the state, mutations, actions,
+// and getters.
+export default new Vuex.Store({
+  state,
+  getters,
+  actions,
+  mutations
+})
+```
+
+
+然后我们需要将 store 注入到所有组件中，只需要在 `src/main.js` 中将这个全局的`store`对象传递给根组件，
+
+```javascript
+import Vue from 'vue'
+import App from './App'
+import store from './store/index'
+
+/* eslint-disable no-new */
+new Vue({
+  el: '#app',
+  store,
+  template: '<App/>',
+  components: { App }
+})
+```
+
+然后所有App的子组件都可以用 `this.$store` 来访问这个状态树了。
+
+最后我们开始改造 Counter组件，将其变为一个无状态组件， `src/components/Counter.vue` 内容如下：
+
+```javascript
+<template>
+  <div id="counter">
+    <p>Current count: {{ $store.state.count }}, the count is {{ evenOrOdd }}</p>
+    <button v-on:click="increment">+</button>
+    <button v-on:click="decrement">-</button>
+    <button v-on:click="incrementIfOdd">Increment if odd</button>
+    <button v-on:click="incrementAsync">Increment async</button>
+  </div>
+</template>
+
+<script>
+import { mapGetters, mapActions } from 'vuex'
+export default {
+  computed: mapGetters([
+    'evenOrOdd'
+  ]),
+  methods: mapActions([
+    'increment',
+    'decrement',
+    'incrementIfOdd',
+    'incrementAsync'
+  ])
+}
+</script>
+
+
+<!-- Add "scoped" attribute to limit CSS to this component only -->
+<style scoped>
+p {
+  text-align: center;
+  font-size: 40px;
+  padding: 40px 0;
+}
+
+button {
+  width: 100px;
+  height: 40px;
+  background: #42B983;
+  color: #fff;
+}
+</style>
+```
+
+这里``我们把 `incrementIfOdd` 变为了一个 action, 同时增加了一个 `incrementAsync`。关于 action 和 mutation 的区别请看官网 <https://vuex.vuejs.org/en/actions.html> 。
+
