@@ -5,6 +5,7 @@ Table of Contents
 1. [Step1: vue-cli](#step1-vue-cli)
 1. [Step2: 编写一个简单的Counter组件](#step2-编写一个简单的counter组件)
 1. [Step3: vuex](#step3-vuex)
+1. [Step4: axios](#step4-axios)
 
 
 # Step1: vue-cli
@@ -319,4 +320,65 @@ button {
 可以看到Counter 组件的内部状态，即 `data` 消失了，取而代之的是数据直接从 `this.$store` 获取。不过要注意，local state is fine, 能用局部状态就没必要放入 vuex的全局树中，这里Counter组件用局部状态其实挺好，只是这一节为了学习目的，故意放入 vuex 中了。
 
 这一节我们把 `incrementIfOdd` 变为了一个 action, 同时增加了一个 `incrementAsync`。关于 action 和 mutation 的区别请看官网 <https://vuex.vuejs.org/en/actions.html> 。
+
+
+# Step4: 调用后端 Restful API
+
+单页面应用SPA免不了需要向后端服务请求数据，这一节我们选择 vue-resource 这个 HTTP客户端。
+
+后端服务就用豆瓣的这个公开API， <https://api.douban.com/v2/movie/top250>。
+
+首先拷贝项目，
+
+    cp -r step3 step4
+    cd step4
+
+然后安装 axios,
+
+    npm install --save vue-resource
+
+在 `src/main.js` 引入并注册 vue-resource:
+
+```javascript
+import VueResource from 'vue-resource'
+Vue.use(VueResource)
+```
+
+创建一个组件 `src/components/Douban.vue`,
+
+```javascript
+<template>
+  <div id="douban">
+    <ul>
+      <li v-for="article in articles">
+        {{article.title}}
+      </li>
+    </ul>
+  </div>
+</template>
+
+<script>
+export default {
+  data () {
+    return {
+      articles: []
+    }
+  },
+  mounted () {
+    this.$http.jsonp('https://api.douban.com/v2/movie/top250?count=10', {}, {
+      headers: {},
+      emulateJSON: true
+    }).then(function (response) { // success callback
+      this.articles = response.data.subjects
+    }, function (response) { // error callback
+      console.log(response)
+    })
+  }
+}
+</script>
+```
+
+注意不能用 get 只能用jsonp，因为跨域请求的缘故。
+
+最后，在 `App.vue` 中使用这个组件，需要添加三行代码， 在 `<template>`里添加一行 `<douban></douban>`，在 `<script>`里引入这个组件，`import Douban from './components/Douban'` 并添加到 `components` 字段。
 
