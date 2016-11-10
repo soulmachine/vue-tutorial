@@ -270,7 +270,7 @@ new Vue({
 ```javascript
 <template>
   <div id="counter">
-    <p>Current count: {{ $store.state.count }}, the count is {{ evenOrOdd }}</p>
+    <p>Current count: {{ count }}, the count is {{ evenOrOdd }}</p>
     <button v-on:click="increment">+</button>
     <button v-on:click="decrement">-</button>
     <button v-on:click="incrementIfOdd">Increment if odd</button>
@@ -281,9 +281,14 @@ new Vue({
 <script>
 import { mapGetters, mapActions } from 'vuex'
 export default {
-  computed: mapGetters([
-    'evenOrOdd'
-  ]),
+  computed: {
+    ...mapGetters([
+      'evenOrOdd'
+    ]),
+    ...mapGetters([
+      'count'
+    ])
+  },
   methods: mapActions([
     'increment',
     'decrement',
@@ -311,5 +316,7 @@ button {
 </style>
 ```
 
-这里``我们把 `incrementIfOdd` 变为了一个 action, 同时增加了一个 `incrementAsync`。关于 action 和 mutation 的区别请看官网 <https://vuex.vuejs.org/en/actions.html> 。
+可以看到Counter 组件的内部状态，即 `data` 消失了，取而代之的是数据直接从 `this.$store` 获取。不过要注意，local state is fine, 能用局部状态就没必要放入 vuex的全局树中，这里Counter组件用局部状态其实挺好，只是这一节为了学习目的，故意放入 vuex 中了。
+
+这一节我们把 `incrementIfOdd` 变为了一个 action, 同时增加了一个 `incrementAsync`。关于 action 和 mutation 的区别请看官网 <https://vuex.vuejs.org/en/actions.html> 。
 
