@@ -5,7 +5,8 @@ Table of Contents
 1. [Step1: vue-cli](#step1-vue-cli)
 1. [Step2: 编写一个简单的Counter组件](#step2-编写一个简单的counter组件)
 1. [Step3: vuex](#step3-vuex)
-1. [Step4: axios](#step4-axios)
+1. [Step4: 调用后端 Restful API](#step4-调用后端-restful-api)
+1. [Step5: vue-router](#step5-vue-router)
 
 
 # Step1: vue-cli
@@ -382,3 +383,61 @@ export default {
 
 最后，在 `App.vue` 中使用这个组件，需要添加三行代码， 在 `<template>`里添加一行 `<douban></douban>`，在 `<script>`里引入这个组件，`import Douban from './components/Douban'` 并添加到 `components` 字段。
 
+
+# Step5: vue-router
+
+现在所有的组件都挤在首页上，很难看，需要把它们分散到多个页面，这时候就需要引入客户端路由，使用官方的 vue-router。 官方文档 <http://router.vuejs.org/> 。
+
+先拷贝项目，
+
+    cp -r step4 step5
+    cd step5
+
+安装 vue-router,
+
+    npm install --save vue-router
+
+在 `src/main.js` 引入并注册 vue-router，创建一个路由实例并传递给Vue实例，
+
+```javascript
+import Vue from 'vue'
+import App from './App'
+import Counter from './components/Counter'
+import Douban from './components/Douban'
+import store from './store/index'
+import VueResource from 'vue-resource'
+import VueRouter from 'vue-router'
+
+Vue.use(VueResource)
+Vue.use(VueRouter)
+
+const routes = [
+  { path: '/counter', component: Counter },
+  { path: '/douban', component: Douban }
+]
+
+const router = new VueRouter({
+  mode: 'history',
+  routes // short for routes: routes
+})
+
+/* eslint-disable no-new */
+new Vue({
+  el: '#app',
+  store,
+  router,
+  template: '<App/>',
+  components: { App }
+})
+```
+
+然后在 `src/App.vue` 的`<template>`节点删除原来的Counter和Douban两个组件，添加 `<router-link>` 和 `<router-view>`，
+
+```html
+<p>
+  <router-link to="/counter">Go to Counter</router-link>
+  <router-link to="/douban">Go to Douban</router-link>
+</p>
+<!-- component matched by the route will render here -->
+<router-view></router-view>
+```
