@@ -3,6 +3,7 @@
     <p>Current count: {{count}}</p>
     <button v-on:click="increment">+</button>
     <button v-on:click="decrement">-</button>
+    <button v-on:click="incrementIfOdd">Increment if odd</button>
   </div>
 </template>
 
@@ -20,6 +21,9 @@
       },
       decrement (event) {
         this.count--
+      },
+      incrementIfOdd (event) {
+        if (this.count % 2 === 1) this.count++
       }
     }
   }

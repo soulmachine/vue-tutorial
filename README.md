@@ -1,5 +1,11 @@
 本教程教大家一步一步用vue来写一个web App, 从简单到复杂，所有步骤都有详细解释。
 
+Table of Contents
+-----------------
+1. [Step1: vue-cli](#step1-vue-cli)
+1. [Step2: 编写一个简单的Counter组件](#step2-编写一个简单的counter组件)
+1. [Step3: vuex](#step3-vuex)
+
 
 # Step1: vue-cli
 
@@ -62,6 +68,7 @@
     <p>Current count: {{count}}</p>
     <button v-on:click="increment">+</button>
     <button v-on:click="decrement">-</button>
+    <button v-on:click="incrementIfOdd">Increment if odd</button>
   </div>
 </template>
 
@@ -79,6 +86,9 @@
       },
       decrement (event) {
         this.count--
+      },
+      incrementIfOdd (event) {
+        if (this.count % 2 === 1) this.count++
       }
     }
   }
@@ -159,9 +169,9 @@ export default {
 
 # Step3: vuex
 
-状态管理是非常核心的功能，vuex 是尤大大专门为vue打造的状态管理框架，类似于 React 社区里的Redux.
+状态管理是非常核心的功能，vuex 是尤大大专门为vue打造的状态管理框架，类似于 React 社区里的Redux. Vuex 最好的文档就是官方的文档 <https://vuex.vuejs.org/>，只看这一份文档就足够了，官方的文档写的简洁然而又通俗易懂。
 
-这一节我们将使用 vuex 来改造 Counter组件，把它的状态放入到 vuex的单根树里，因此Counter变成了一个无状态的组件。
+这一节我们将使用 vuex 来改造 Counter 组件，把它的状态放入到 vuex的单根树里，因此Counter变成了一个无状态的组件。
 
 首先拷贝项目，
 
