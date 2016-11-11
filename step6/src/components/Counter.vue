@@ -10,26 +10,27 @@
 
 <script>
 export default {
+  name: 'Counter',
   props: {
     count: Number
   },
   computed: {
     evenOrOdd () {
-      return count % 2 === 0 ? 'even' : 'odd'
+      return this.count % 2 === 0 ? 'even' : 'odd'
     }
   },
   methods: {
     increment () {
-      this.$emit('increment')
+      this.$emit('incrementEvent')
     },
     decrement () {
-      this.$emit('decrement')
+      this.$emit('decrementEvent')
     },
     incrementIfOdd () {
-      this.$emit('incrementIfOdd')
+      this.$emit('incrementIfOddEvent')
     },
     incrementAsync () {
-      this.$emit('incrementAsync')
+      this.$emit('incrementAsyncEvent')
     }
   }
 }

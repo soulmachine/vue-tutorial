@@ -7,6 +7,7 @@ Table of Contents
 1. [Step3: vuex](#step3-vuex)
 1. [Step4: 调用后端 Restful API](#step4-调用后端-restful-api)
 1. [Step5: vue-router](#step5-vue-router)
+1. [Step6: 编写可复用组件](#step6-编写可复用组件)
 
 
 # Step1: vue-cli
@@ -112,6 +113,8 @@ button {
 }
 </style>
 ```
+
+`<script>` 中的 `name` 字段是可选的，一般还是加上，方便 debug 的时候知道是哪个组件出了问题。
 
 在 `App.vue`中引入 `Counter`组件，需要修改三处，首先在 `<script>`的开头import,
 
@@ -441,3 +444,132 @@ new Vue({
 <!-- component matched by the route will render here -->
 <router-view></router-view>
 ```
+
+
+# Step6: 编写可复用组件
+
+在第3步中，我们的 Counter 组件，内部直接使用了Vuex 的东西，跟 Vuex 是强耦合的。如果我们想要把Counter组件开源出去，做成一个可复用的组件，该怎么办？ 需要去掉 Vuex 依赖，仅仅依赖Vue, 只使用 props 和 events 来实现父子组件通讯。
+
+在官方文档[这里](https://cn.vuejs.org/v2/guide/components.html#构成组件)，已经说到，父子组件之间，一般用 props down, events up 来实现通讯。
+
+接下来我们来改造 Counter 组件，让它拜托 Vuex 的依赖。
+
+```html
+<template>
+  <div id="counter">
+    <p>Current count: {{ count }}, the count is {{ evenOrOdd }}</p>
+    <button v-on:click="increment">+</button>
+    <button v-on:click="decrement">-</button>
+    <button v-on:click="incrementIfOdd">Increment if odd</button>
+    <button v-on:click="incrementAsync">Increment async</button>
+  </div>
+</template>
+
+<script>
+export default {
+  name: 'counter',
+  props: {
+    count: Number
+  },
+  computed: {
+    evenOrOdd () {
+      return this.count % 2 === 0 ? 'even' : 'odd'
+    }
+  },
+  methods: {
+    increment () {
+      this.$emit('incrementEvent')
+    },
+    decrement () {
+      this.$emit('decrementEvent')
+    },
+    incrementIfOdd () {
+      this.$emit('incrementIfOddEvent')
+    },
+    incrementAsync () {
+      this.$emit('incrementAsyncEvent')
+    }
+  }
+}
+</script>
+
+
+<!-- Add "scoped" attribute to limit CSS to this component only -->
+<style scoped>
+p {
+  text-align: center;
+  font-size: 40px;
+  padding: 40px 0;
+}
+
+button {
+  width: 100px;
+  height: 40px;
+  background: #42B983;
+  color: #fff;
+}
+</style>
+```
+
+现在 Counter 组件的数据来源只有一个，就是 props 里的 count 了，同时 Counter 定义了四个自定义事件，向上冒泡给父组件，由父组件来响应。
+
+接下来我们来改在父组件，即 `src/App.vue`,
+
+```html
+<template>
+  <div id="app">
+    <img src="./assets/logo.png">
+    <hello></hello>
+    <p>
+      <counter :count="count" v-on:incrementEvent="increment" v-on:decrementEvent="decrement" v-on:incrementIfOddEvent="incrementIfOdd" v-on:incrementAsyncEvent="incrementAsync" to="/counter" ></counter>
+      <router-link to="/douban">Go to Douban</router-link>
+    </p>
+    <router-view></router-view>
+  </div>
+</template>
+
+<script>
+import Hello from './components/Hello'
+import Counter from './components/Counter'
+import Douban from './components/Douban'
+import { mapState, mapActions } from 'vuex'
+
+export default {
+  name: 'app',
+  computed: mapState([
+    'count'
+  ]),
+  methods: mapActions([
+    'increment',
+    'decrement',
+    'incrementIfOdd',
+    'incrementAsync'
+  ]),
+  components: {
+    Hello,
+    Counter,
+    Douban
+  }
+}
+</script>
+
+<style>
+#app {
+  font-family: 'Avenir', Helvetica, Arial, sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  text-align: center;
+  color: #2c3e50;
+  margin-top: 60px;
+}
+</style>
+```
+
+基本上，把第三步中的Counter里关于 Vuex的部分，原封不动的搬到了App组件里了，现在 App 组件是跟Vuex耦合的了，这是无可避免的，一个 Web 应用，至少根组件是要跟 Vuex 耦合的。
+
+在 `template` 节点， 我们监听Counter 组件的四个事件。
+
+目前有两个问题还没有解决：
+
+* 当前的代码，比step3 中的相比， boilplate 代码多了很多，是我用的姿势不对吗？
+* Counter组件如果放在 `<router-link>` 里，怎么向它传递 props 数据，以及怎么用`v-on`监听事件？ 现在只能把它暂时从 `<router-link>`移出来了。
