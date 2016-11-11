@@ -8,6 +8,7 @@ Table of Contents
 1. [Step4: 调用后端 Restful API](#step4-调用后端-restful-api)
 1. [Step5: vue-router](#step5-vue-router)
 1. [Step6: 编写可复用组件](#step6-编写可复用组件)
+1. [Step7: element-ui](#step7-element-ui)
 
 
 # Step1: vue-cli
@@ -573,3 +574,109 @@ export default {
 
 * 当前的代码，比step3 中的相比， boilplate 代码多了很多，是我用的姿势不对吗？
 * Counter组件如果放在 `<router-link>` 里，怎么向它传递 props 数据，以及怎么用`v-on`监听事件？ 现在只能把它暂时从 `<router-link>`移出来了。
+
+
+# Step7: element-ui
+
+现在的界面太难看了，自己写UI组件又很费劲，我们就用饿了么公司开源的UI库来美化一下界面吧， [element-ui](https://github.com/ElemeFE/element)，最近刚刚发布 1.0 正式版。
+
+先拷贝项目，从 step5 拷贝，感觉 step6 的写法太繁琐了，
+
+    cp -r step5 step7
+    cd step7
+
+安装 element-ui,
+
+    npm install --save element-ui
+
+在 `src/main.js` 中引入并注册 `element-ui`,
+
+```javascript
+import Element from 'element-ui'
+import 'element-ui/lib/theme-default/index.css'
+Vue.use(Element)
+```
+
+给豆瓣的电影列表套一个CSS 样式，将 `src/components/Douban.vue` 中的 `<template>` 换成如下内容，
+
+```html
+<template>
+  <el-card class="box-card">
+    <div slot="header" class="clearfix">
+        <h1 style="line-height: 36px; color: #20A0FF">豆瓣电影排行榜</h2>
+    </div>
+    <div v-for="article in articles" class="text item">
+        {{article.title}}
+    </div>
+  </el-card>
+</template>
+```
+
+运行 `npm run dev` 就可以看到效果了。
+
+接下来给 Counter 组件美化一下，同样的，只需要修改`src/components/Counter.vue`里的 `<template>`部分，
+
+```javascript
+<template>
+  <div id="counter">
+    <p>Current count: {{ count }}, the count is {{ evenOrOdd }}</p>
+    <el-button v-on:click="increment">+</el-button>
+    <el-button v-on:click="decrement">-</el-button>
+    <el-button v-on:click="incrementIfOdd">Increment if odd</el-button>
+    <el-button v-on:click="incrementAsync">Increment async</el-button>
+  </div>
+</template>
+```
+
+最后，我们来改善一下页面布局，并加一个导航菜单， `src/App.vue`的内容如下，
+
+```html
+<template>
+  <div id="app">
+    <el-menu router default-active="/" class="el-menu-demo" mode="horizontal" @select="handleselect">
+      <el-menu-item index="/">Home</el-menu-item>
+      <el-menu-item index="counter">Go to Counter</el-menu-item>
+      <el-menu-item index="douban">Go to Douban</el-menu-item>
+    </el-menu>
+    <router-view></router-view>
+  </div>
+</template>
+
+<script>
+import Hello from './components/Hello'
+import Counter from './components/Counter'
+import Douban from './components/Douban'
+
+export default {
+  name: 'app',
+  components: {
+    Hello,
+    Counter,
+    Douban
+  },
+  methods: {
+    handleselect (index) {
+      console.log(index)
+    }
+  }
+}
+</script>
+
+<style>
+#app {
+  font-family: 'Avenir', Helvetica, Arial, sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  text-align: center;
+  color: #2c3e50;
+  margin-top: 60px;
+}
+</style>
+```
+
+上述代码里，我们给 `el-menu` 传入了一个参数 `router`，从而启用了vue-router模式， 并在 `<methods>` 添加了一个 `handleselect` 方法。
+
+同时，由于在导航菜单里我们把`Hello` 组件做为默认的首页，因此我们还要修改 `src/main.js`，添加一条路由，
+
+    { path: '/', component: Hello },
+
