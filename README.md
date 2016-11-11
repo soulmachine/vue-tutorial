@@ -66,7 +66,7 @@ Table of Contents
 
 添加一个文件 `src/components/Counter.vue`，内容如下：
 
-```javascript
+```html
 <template>
   <div id="counter">
     <p>Current count: {{count}}</p>
@@ -135,7 +135,7 @@ button {
 最终 `App.vue`内容如下，
 
 
-```javascript
+```html
 <template>
   <div id="app">
     <img src="./assets/logo.png">
@@ -273,7 +273,7 @@ new Vue({
 
 最后我们开始改造 Counter组件，将其变为一个无状态组件， `src/components/Counter.vue` 内容如下：
 
-```javascript
+```html
 <template>
   <div id="counter">
     <p>Current count: {{ count }}, the count is {{ evenOrOdd }}</p>
@@ -616,7 +616,7 @@ Vue.use(Element)
 
 接下来给 Counter 组件美化一下，同样的，只需要修改`src/components/Counter.vue`里的 `<template>`部分，
 
-```javascript
+```html
 <template>
   <div id="counter">
     <p>Current count: {{ count }}, the count is {{ evenOrOdd }}</p>
