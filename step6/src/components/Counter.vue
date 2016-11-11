@@ -9,22 +9,29 @@
 </template>
 
 <script>
-import { mapGetters, mapState, mapActions } from 'vuex'
 export default {
-  computed: {
-    ...mapGetters([
-      'evenOrOdd'
-    ]),
-    ...mapState([
-      'count'
-    ])
+  props: {
+    count: Number
   },
-  methods: mapActions([
-    'increment',
-    'decrement',
-    'incrementIfOdd',
-    'incrementAsync'
-  ])
+  computed: {
+    evenOrOdd () {
+      return count % 2 === 0 ? 'even' : 'odd'
+    }
+  },
+  methods: {
+    increment () {
+      this.$emit('increment')
+    },
+    decrement () {
+      this.$emit('decrement')
+    },
+    incrementIfOdd () {
+      this.$emit('incrementIfOdd')
+    },
+    incrementAsync () {
+      this.$emit('incrementAsync')
+    }
+  }
 }
 </script>
 

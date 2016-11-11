@@ -281,13 +281,13 @@ new Vue({
 </template>
 
 <script>
-import { mapGetters, mapActions } from 'vuex'
+import { mapGetters, mapState, mapActions } from 'vuex'
 export default {
   computed: {
     ...mapGetters([
       'evenOrOdd'
     ]),
-    ...mapGetters([
+    ...mapState([
       'count'
     ])
   },

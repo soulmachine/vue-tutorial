@@ -1,6 +1,6 @@
 <template>
   <div id="counter">
-    <p>Current count: {{ $store.state.count }}, the count is {{ evenOrOdd }}</p>
+    <p>Current count: {{ count }}, the count is {{ evenOrOdd }}</p>
     <button v-on:click="increment">+</button>
     <button v-on:click="decrement">-</button>
     <button v-on:click="incrementIfOdd">Increment if odd</button>
@@ -9,11 +9,16 @@
 </template>
 
 <script>
-import { mapGetters, mapActions } from 'vuex'
+import { mapGetters, mapState, mapActions } from 'vuex'
 export default {
-  computed: mapGetters([
-    'evenOrOdd'
-  ]),
+  computed: {
+    ...mapGetters([
+      'evenOrOdd'
+    ]),
+    ...mapState([
+      'count'
+    ])
+  },
   methods: mapActions([
     'increment',
     'decrement',
