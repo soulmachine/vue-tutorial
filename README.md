@@ -674,6 +674,8 @@ export default {
 </style>
 ```
 
+上面的代码中我们还把 `<style>` 的最后一行 `margin-top: 60px;` 删除了，这样顶部就不再有空白了。
+
 上述代码里，我们给 `el-menu` 传入了一个参数 `router`，从而启用了vue-router模式， 并在 `<methods>` 添加了一个 `handleselect` 方法。
 
 同时，由于在导航菜单里我们把`Hello` 组件做为默认的首页，因此我们还要修改 `src/main.js`，添加一条路由，
